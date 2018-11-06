@@ -4,40 +4,60 @@
  * Сделано задание на звездочку
  * Реализованы методы several и through
  */
-const isStar = true;
+const isStar = false;
 
 /**
  * Возвращает новый emitter
  * @returns {Object}
  */
 function getEmitter() {
+    let peeps = [];
+    function isSuperevent(superevent, event) {
+        return event.indexOf(superevent) === 0 &&
+            (event.length === superevent.length || event[superevent.length] === '.');
+    }
+
     return {
 
-        /**
+        /*
          * Подписаться на событие
          * @param {String} event
          * @param {Object} context
          * @param {Function} handler
          */
         on: function (event, context, handler) {
-            console.info(event, context, handler);
+            peeps.push({
+                event,
+                context,
+                handler
+            });
+
+            return this;
         },
 
-        /**
-         * Отписаться от события
-         * @param {String} event
-         * @param {Object} context
-         */
+
         off: function (event, context) {
-            console.info(event, context);
+            peeps = peeps.filter((subscription) => {
+                return subscription.context !== context ||
+                    !isSuperevent(event, subscription.event);
+            });
+
+            return this;
         },
 
-        /**
-         * Уведомить о событии
-         * @param {String} event
-         */
+
         emit: function (event) {
-            console.info(event);
+            const suitableSubscriptions = peeps.filter((subscription) => {
+                return isSuperevent(subscription.event, event);
+            });
+            suitableSubscriptions.sort((a, b) => {
+                return a.event.split('.').length < b.event.split('.').length;
+            });
+            for (let subscription of suitableSubscriptions) {
+                subscription.handler.call(subscription.context);
+            }
+
+
         },
 
         /**
