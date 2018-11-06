@@ -57,7 +57,7 @@ function getEmitter() {
                 subscription.handler.call(subscription.context);
             }
 
-
+            return this;
         },
 
         /**
